@@ -1,4 +1,4 @@
-module github.com/tudoresan/shared-finance-app-golang
+module github.com/TudorEsan/shared-finance-app-golang
 
 go 1.18
 
