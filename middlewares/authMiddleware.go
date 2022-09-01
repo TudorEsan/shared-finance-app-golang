@@ -4,10 +4,10 @@ import (
 	"net/http"
 	"os"
 	"strings"
-
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/tudoresan/shared-finance-app-golang/customErrors"
+	"github.com/TudorEsan/shared-finance-app-golang/releases/tag/v1.0.0/"
 )
 
 type SignedDetails struct {
