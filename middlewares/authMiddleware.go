@@ -59,7 +59,7 @@ func VerifyAuth() gin.HandlerFunc {
 			return
 		}
 		// Check if Refresh Token exists
-		refreshToken, err := c.Cookie("refreshToken")
+		_, err = c.Cookie("refreshToken")
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Refresh Token Not Found"})
 			removeCookies(c)
@@ -70,33 +70,22 @@ func VerifyAuth() gin.HandlerFunc {
 		// Validate Token
 		claims, err := validateToken(token)
 		switch e := err.(type) {
+
 		case nil:
 			// token ok -> user authorized
 			c.Set("UserId", claims.Id)
 			c.Next()
 			return
 		case *customErrors.ExpiredToken:
-			// Token expired -> check Refresh Token
-			break
+			// Token expired -> client should refresh the tokens
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "token expired"})
+			c.Abort()
+			return
 		default:
 			// Token invalid or any other error-> reject Request
 			c.JSON(http.StatusUnauthorized, customErrors.GetJsonError(e))
 			c.Abort()
 			return
 		}
-
-		// validate refresh token
-		refreshClaims, err := validateToken(refreshToken)
-		// if any type of error, reject request
-		if err != nil {
-			c.JSON(http.StatusUnauthorized, customErrors.GetJsonError(e))
-			c.Abort()
-			return
-		}
-		c.Set("UserId", refreshClaims.Id)
-		// generate the new tokens
-		
-		
-
 	}
 }
