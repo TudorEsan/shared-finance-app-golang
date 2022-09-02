@@ -2,31 +2,18 @@ package middlewares
 
 import (
 	"net/http"
-	"os"
 	"strings"
+
+	"github.com/TudorEsan/shared-finance-app-golang/customErrors"
+	sharedmodels "github.com/TudorEsan/shared-finance-app-golang/sharedModels"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/tudoresan/shared-finance-app-golang/customErrors"
-	"github.com/TudorEsan/shared-finance-app-golang/releases/tag/v1.0.0/"
 )
 
-type SignedDetails struct {
-	Email    string
-	Username string
-	Id       string
-	jwt.StandardClaims
-}
+func ValidateToken(signedToken string) (*sharedmodels.SignedDetails, error) {
 
-func GetSecretKey() string {
-	return os.Getenv("SECRET_JWT")
-}
-
-var SECRET_KEY string = GetSecretKey()
-
-func validateToken(signedToken string) (*SignedDetails, error) {
-
-	token, err := jwt.ParseWithClaims(signedToken, &SignedDetails{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(SECRET_KEY), nil
+	token, err := jwt.ParseWithClaims(signedToken, &sharedmodels.SignedDetails{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(sharedmodels.SECRET_KEY), nil
 	})
 	if err != nil && strings.Contains(err.Error(), "expired") {
 		return nil, customErrors.ExpiredToken{}
@@ -35,14 +22,14 @@ func validateToken(signedToken string) (*SignedDetails, error) {
 		return nil, customErrors.InvalidToken{}
 	}
 
-	claims, ok := token.Claims.(*SignedDetails)
+	claims, ok := token.Claims.(*sharedmodels.SignedDetails)
 	if !ok {
 		return nil, customErrors.InvalidToken{}
 	}
 	return claims, nil
 }
 
-func removeCookies(c *gin.Context) {
+func RemoveCookies(c *gin.Context) {
 	c.SetCookie("token", "", 60*60*24*30, "", "", false, false)
 	c.SetCookie("refreshToken", "", 60*60*24*30, "", "", false, false)
 }
@@ -54,7 +41,7 @@ func VerifyAuth() gin.HandlerFunc {
 		token, err := c.Cookie("token")
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Token Not Found"})
-			removeCookies(c)
+			RemoveCookies(c)
 			c.Abort()
 			return
 		}
@@ -62,13 +49,13 @@ func VerifyAuth() gin.HandlerFunc {
 		_, err = c.Cookie("refreshToken")
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"message": "Refresh Token Not Found"})
-			removeCookies(c)
+			RemoveCookies(c)
 			c.Abort()
 			return
 		}
 
 		// Validate Token
-		claims, err := validateToken(token)
+		claims, err := ValidateToken(token)
 		switch e := err.(type) {
 
 		case nil:
