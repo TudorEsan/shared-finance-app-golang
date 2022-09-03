@@ -2,14 +2,11 @@ package middlewares
 
 import (
 	"net/http"
-	"strings"
 
 	"github.com/TudorEsan/shared-finance-app-golang/customErrors"
-	sharedmodels "github.com/TudorEsan/shared-finance-app-golang/sharedModels"
+	sharedvalidators "github.com/TudorEsan/shared-finance-app-golang/sharedValidators"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 )
-
 
 func RemoveCookies(c *gin.Context) {
 	c.SetCookie("token", "", 60*60*24*30, "", "", false, false)
@@ -37,7 +34,7 @@ func VerifyAuth() gin.HandlerFunc {
 		}
 
 		// Validate Token
-		claims, err := ValidateToken(token)
+		claims, err := sharedvalidators.ValidateToken(token)
 		switch e := err.(type) {
 
 		case nil:
