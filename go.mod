@@ -5,13 +5,20 @@ go 1.18
 require github.com/golang-jwt/jwt v3.2.2+incompatible
 
 require (
+	github.com/fatih/color v1.13.0 // indirect
+	github.com/mattn/go-colorable v0.1.12 // indirect
+)
+
+require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-gonic/contrib v0.0.0-20201101042839-6a891bf89f19 // indirect
 	github.com/gin-gonic/gin v1.8.1 // indirect
+	github.com/go-playground/assert/v2 v2.0.1
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
 	github.com/go-playground/validator/v10 v10.11.0 // indirect
 	github.com/goccy/go-json v0.9.11 // indirect
+	github.com/hashicorp/go-hclog v1.3.0
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/mattn/go-isatty v0.0.16 // indirect

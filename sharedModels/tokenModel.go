@@ -1,12 +1,13 @@
 package sharedmodels
 
 import (
+	"log"
 	"os"
 
 	"github.com/golang-jwt/jwt"
 )
 
-var SECRET_KEY string = GetSecretKey()
+var SECRET_KEY []byte = GetSecretKey()
 
 type SignedDetails struct {
 	Email    string
@@ -15,6 +16,11 @@ type SignedDetails struct {
 	jwt.StandardClaims
 }
 
-func GetSecretKey() string {
-	return os.Getenv("SECRET_JWT")
+func GetSecretKey() []byte {
+	key, ok := os.LookupEnv("SECRET_JWT")
+	if !ok {
+		log.Println("SECRET KEY WAS INITIALIZED BY DEFAULT")
+		return []byte("TEST")
+	}
+	return []byte(key)
 }
