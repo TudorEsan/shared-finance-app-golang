@@ -13,6 +13,7 @@ type SignedDetails struct {
 	Email    string
 	Username string
 	Id       string
+	EmailValidated bool
 	jwt.StandardClaims
 }
 

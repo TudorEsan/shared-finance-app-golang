@@ -35,23 +35,36 @@ func VerifyAuth() gin.HandlerFunc {
 
 		// Validate Token
 		claims, err := sharedvalidators.ValidateToken(token)
-		switch e := err.(type) {
-
-		case nil:
-			// token ok -> user authorized
-			c.Set("UserId", claims.Id)
-			c.Next()
-			return
-		case *customErrors.ExpiredToken:
-			// Token expired -> client should refresh the tokens
-			c.JSON(http.StatusInternalServerError, gin.H{"message": "token expired"})
-			c.Abort()
-			return
-		default:
-			// Token invalid or any other error-> reject Request
-			c.JSON(http.StatusUnauthorized, customErrors.GetJsonError(e))
+		if _, ok := err.(customErrors.ExpiredToken); ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Token Expired"})
+			RemoveCookies(c)
 			c.Abort()
 			return
 		}
+
+		if _, ok := err.(customErrors.EmailNotValidated); ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Email Not Validated"})
+			RemoveCookies(c)
+			c.Abort()
+			return
+		}
+
+		if _, ok := err.(customErrors.InvalidToken); ok {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid Token"})
+			RemoveCookies(c)
+			c.Abort()
+			return
+		}
+
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid Token"})
+			RemoveCookies(c)
+			c.Abort()
+			return
+		}
+
+		c.Set("UserId", claims.Id)
+		c.Next()
 	}
+
 }
